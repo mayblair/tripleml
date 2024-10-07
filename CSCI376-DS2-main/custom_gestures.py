@@ -56,6 +56,18 @@ def recognize_ok(hand_landmarks):
             return "Okay Gesture"
     return "Unknown"
 
+def recognize_pointing(hand_landmarks):
+    wrist = hand_landmarks.landmark[mp_hands.HandLandmark.WRIST]
+    index_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
+    
+    # Compare x-coordinates to determine direction
+    if index_tip.x > wrist.x:
+        return "Pointing Right"
+    elif index_tip.x < wrist.x:
+        return "Pointing Left"
+    else:
+        return "Unknown"
+
 def main():
     # Initialize video capture
     cap = cv2.VideoCapture(0)  # 0 is the default webcam
@@ -93,7 +105,8 @@ def main():
 
                     # Recognize gesture
                     # gesture = recognize_palm(hand_landmarks)
-                    gesture = recognize_ok(hand_landmarks)
+                    # gesture = recognize_ok(hand_landmarks)
+                    gesture = recognize_pointing(hand_landmarks)
                     
                     # Display gesture near hand location
                     cv2.putText(image, gesture, 
