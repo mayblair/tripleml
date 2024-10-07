@@ -78,6 +78,7 @@ def main():
                         
                         # Draw hand landmarks
                         mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+                        recognized_gesture = pointing_direction
 
                 # Example of pressing keys with pyautogui based on other recognized gestures
                 if recognized_gesture == "Open_Palm":
