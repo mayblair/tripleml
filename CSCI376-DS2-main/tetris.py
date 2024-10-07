@@ -82,7 +82,7 @@ def main():
                 # Example of pressing keys with pyautogui based on other recognized gestures
                 if recognized_gesture == "Open_Palm":
                     pyautogui.press("up")
-                    pyautogui.PAUSE = 0.25 
+                    pyautogui.PAUSE = 0.15 
                 elif recognized_gesture == "Thumb_Down":
                     pyautogui.press("down")
                 elif recognized_gesture == "Thumb_Up":
