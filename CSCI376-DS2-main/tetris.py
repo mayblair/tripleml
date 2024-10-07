@@ -18,18 +18,23 @@ gesture_recognizer = GestureRecognizer.create_from_options(options)
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 
-# Function to detect if the index finger is pointing right or left
+# Function to detect if the index finger is definitively pointing right or left
 def recognize_pointing(hand_landmarks):
     wrist = hand_landmarks.landmark[mp_hands.HandLandmark.WRIST]
+    index_mcp = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP]  # Index finger base
     index_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
-    
-    # Compare x-coordinates of wrist and index fingertip to determine pointing direction
-    if index_tip.x > wrist.x:
-        return "Pointing Right"
-    elif index_tip.x < wrist.x:
-        return "Pointing Left"
-    else:
-        return None
+
+    # Check if the index finger is definitively angled to the side
+    index_vector = (index_tip.x - index_mcp.x, index_tip.y - index_mcp.y)
+    finger_slope = index_vector[1] / index_vector[0] if index_vector[0] != 0 else float('inf')  # Slope of the finger
+
+    if abs(finger_slope) < 0.3:  # Ensure the finger is roughly horizontal (adjust threshold as needed)
+        if index_tip.x > wrist.x:
+            return "Pointing Right"
+        elif index_tip.x < wrist.x:
+            return "Pointing Left"
+    return None
+
 
 def main():
     # Initialize video capture
@@ -64,6 +69,7 @@ def main():
             image = cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR)
 
             if result.gestures:
+                printed_gesture = None
                 recognized_gesture = result.gestures[0][0].category_name
                 confidence = result.gestures[0][0].score
 
@@ -72,24 +78,30 @@ def main():
                     for hand_landmarks in results.multi_hand_landmarks:
                         pointing_direction = recognize_pointing(hand_landmarks)
                         if pointing_direction == "Pointing Right":
-                            pyautogui.press("right")  # Replace "Victory" with Pointing Right
+                            pyautogui.press("right")
                         elif pointing_direction == "Pointing Left":
-                            pyautogui.press("left")  # Replace "Closed_Fist" with Pointing Left
+                            pyautogui.press("left")
                         
                         # Draw hand landmarks
                         mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-                        recognized_gesture = pointing_direction
+                        
+                        printed_gesture = pointing_direction
 
                 # Example of pressing keys with pyautogui based on other recognized gestures
                 if recognized_gesture == "Open_Palm":
+                    printed_gesture = recognized_gesture
                     pyautogui.press("up")
+                    pyautogui.PAUSE=0.5
                 elif recognized_gesture == "Thumb_Down":
+                    printed_gesture = recognized_gesture
                     pyautogui.press("down")
-                elif recognized_gesture == "Thumb_Up":
+                elif recognized_gesture == "Victory":
+                    printed_gesture = recognized_gesture
                     pyautogui.press("space")
+                    pyautogui.PAUSE=0.5
 
                 # Display recognized gesture and confidence 
-                cv2.putText(image, f"Gesture: {recognized_gesture} ({confidence:.2f})", 
+                cv2.putText(image, f"Gesture: {printed_gesture} ({confidence:.2f})", 
                             (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
 
