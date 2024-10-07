@@ -91,6 +91,7 @@ def main():
                 cv2.putText(image, f"Gesture: {recognized_gesture} ({confidence:.2f})", 
                             (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
+
             # Display the resulting image (can comment this out for better performance later on)
             cv2.imshow('Gesture Recognition', image)
 
